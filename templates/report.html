@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Security Report</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:13px;background:#fff;color:#222;margin:0;padding:0}
+  #loading{padding:40px;text-align:center;color:#666}
+  #main-content{display:none;max-width:1100px;margin:0 auto;padding:16px}
+
+  /* nav */
+  .nav{background:#1a1a2e;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+  .nav strong{font-size:14px}
+  .nav span{color:#aaa;font-size:12px;flex:1}
+  .nav a,.nav button{padding:4px 10px;background:transparent;border:1px solid #555;color:#ccc;font-size:12px;cursor:pointer;text-decoration:none}
+  .nav a:hover,.nav button:hover{background:#333;color:#fff}
+  .threat{padding:3px 10px;border-radius:3px;font-size:11px;font-weight:bold}
+  .tc{background:#dc3545;color:#fff}.th{background:#fd7e14;color:#fff}
+  .tm{background:#ffc107;color:#000}.tk{background:#28a745;color:#fff}
+
+  /* cards row */
+  .sev-row{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+  .sev-card{border:1px solid #ddd;padding:10px 14px;text-align:center;min-width:80px;flex:1}
+  .sev-card .n{font-size:1.8rem;font-weight:700;line-height:1}
+  .sev-card .l{font-size:11px;color:#666;margin-top:3px}
+  .cr .n{color:#dc3545}.hi .n{color:#fd7e14}.me .n{color:#856404}.lo .n{color:#28a745}.inf .n{color:#999}
+
+  /* sections */
+  .sec{margin-bottom:14px;border:1px solid #ddd}
+  .sec-head{background:#f8f8f8;padding:8px 12px;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+  .badge{background:#1a1a2e;color:#fff;font-size:11px;padding:1px 7px;border-radius:10px}
+  .sec-body{padding:12px}
+
+  /* device */
+  .dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:10px 0}
+  .dkv{background:#f8f8f8;padding:6px 8px;border:1px solid #eee}
+  .dkv .k{font-size:10px;color:#888;text-transform:uppercase;margin-bottom:2px}
+  .dkv .v{font-size:12px;font-weight:600;word-break:break-all}
+  .flags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .flag{padding:2px 8px;border-radius:3px;font-size:11px;border:1px solid}
+  .flag.ok{background:#f0fff4;color:#155724;border-color:#c3e6cb}
+  .flag.warn{background:#fffdf0;color:#856404;border-color:#ffe69c}
+  .flag.danger{background:#fff5f5;color:#721c24;border-color:#f5c2c7}
+  .flag.info{background:#f0f5ff;color:#1a1a2e;border-color:#cce}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{background:#f8f8f8;padding:7px 10px;text-align:left;border-bottom:2px solid #ddd;font-size:11px;color:#555;white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid #eee;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#fafafa}
+  tr[data-sev=critical] td:first-child{border-left:3px solid #dc3545}
+  tr[data-sev=high] td:first-child{border-left:3px solid #fd7e14}
+  tr[data-sev=medium] td:first-child{border-left:3px solid #ffc107}
+  tr[data-sev=low] td:first-child{border-left:3px solid #28a745}
+
+  .stag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px}
+  .sc{background:#f8d7da;color:#721c24}.sh{background:#ffe5d0;color:#7d3a00}
+  .sm{background:#fff3cd;color:#856404}.sl{background:#d4edda;color:#155724}.si{background:#eee;color:#555}
+  .pchip{display:inline-block;font-size:10px;padding:1px 5px;background:#ffeaea;color:#c0392b;border-radius:2px;margin:1px}
+
+  /* filter */
+  .frow{padding:8px 12px;background:#f8f8f8;border-bottom:1px solid #ddd;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+  .fbtn{padding:3px 10px;background:#fff;border:1px solid #ccc;font-size:11px;cursor:pointer;border-radius:3px}
+  .fbtn.act{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+  .fbtn.frc.act{background:#dc3545;border-color:#dc3545}
+  .fbtn.frh.act{background:#fd7e14;border-color:#fd7e14}
+  .fbtn.frm.act{background:#856404;border-color:#856404}
+  .sbox{padding:4px 8px;border:1px solid #ccc;font-size:12px;flex:1;max-width:200px}
+
+  /* findings */
+  .finding{padding:8px 10px;margin-bottom:6px;border-left:3px solid;font-size:12px}
+  .finding:last-child{margin-bottom:0}
+  .finding strong{display:block;margin-bottom:2px}
+  .finding .fd{color:#666;font-size:11px}
+  .finding .ff{color:#888;font-size:11px;padding-left:8px;margin-top:3px}
+  .finding .ff span{display:block}
+  .fc{background:#fff5f5;border-color:#dc3545}.fc strong{color:#dc3545}
+  .fh{background:#fff8f0;border-color:#fd7e14}.fh strong{color:#c55a00}
+  .fm{background:#fffdf0;border-color:#ffc107}.fm strong{color:#856404}
+  .fl{background:#f0fff4;border-color:#28a745}.fl strong{color:#155724}
+  .fi{background:#f8f8f8;border-color:#ccc}.fi strong{color:#555}
+
+  /* info row */
+  .info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+  .info-card{border:1px solid #ddd;padding:12px}
+  .info-card h4{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #eee}
+  .nkv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:12px;gap:8px}
+  .nkv:last-child{border-bottom:none}
+  .nkv .k{color:#888}.nkv .v{font-weight:600;text-align:right;word-break:break-word}
+
+  /* misc */
+  .acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+  .acc-card{background:#f8f8f8;border:1px solid #eee;padding:8px 10px}
+  .acc-email{font-weight:600;font-size:12px;word-break:break-all}
+  .acc-type{font-size:11px;color:#888;margin-top:2px}
+  .svc-wrap{display:flex;flex-wrap:wrap;gap:5px}
+  .svc{background:#f8f8f8;border:1px solid #eee;padding:2px 8px;font-size:11px;color:#555}
+  .xbtn{background:none;border:1px solid #ccc;font-size:11px;padding:2px 7px;cursor:pointer}
+  .xbtn:hover{background:#f0f0f0}
+  .det-row{display:none}.det-row.open{display:table-row}
+  .det-cell{padding:10px 12px;background:#fafafa;border-top:1px dashed #ddd;font-size:12px}
+  .det-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-bottom:10px}
+  .det-kv .k{font-size:10px;color:#888;text-transform:uppercase}
+  .det-kv .v{font-size:12px;color:#333;word-break:break-all;margin-top:1px}
+  .stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .sbox2{border:1px solid #ddd;padding:8px 12px;text-align:center;min-width:70px}
+  .sbox2 .sn{font-size:1.2rem;font-weight:700}
+  .sbox2 .sl{font-size:10px;color:#888;text-transform:uppercase;margin-top:2px}
+  .sbar-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+  .sbar-row:last-child{border-bottom:none}
+  .sbar-addr{width:180px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sbar-wrap{flex:1;height:6px;background:#e9ecef;border-radius:3px;overflow:hidden}
+  .sbar-fill{height:100%;background:#1a1a2e;border-radius:3px}
+  .sbar-cnt{width:32px;text-align:right;font-weight:600;flex-shrink:0}
+  .ct-in{color:#28a745;font-weight:600}.ct-out{color:#1a1a2e;font-weight:600}
+  .ct-miss{color:#dc3545;font-weight:600}.ct-rej{color:#fd7e14}
+  .conn-state{font-size:10px;padding:1px 6px;background:#fff3cd;border-radius:3px;color:#856404}
+  .ai-card{display:none;border:1px solid #cce;background:#f0f5ff;padding:14px;margin-bottom:12px}
+  .ai-card.on{display:block}
+  .ai-head{font-weight:700;color:#1a1a2e;margin-bottom:6px;font-size:13px}
+  .ai-meta{font-size:11px;color:#888;margin-bottom:6px}
+  .ai-sum{font-size:12px;line-height:1.6;margin-bottom:8px}
+  .footer{text-align:center;padding:12px;font-size:11px;color:#aaa;border-top:1px solid #eee;margin-top:8px}
+  @media(max-width:700px){.sev-row{flex-wrap:wrap}.info-row{grid-template-columns:1fr}.nav span{display:none}}
+  @media print{.nav .nav-actions,.frow{display:none}#main-content{display:block!important}#loading{display:none}}
+</style>
+</head>
+<body>
+
+<div id="loading"><p>Loading report...</p></div>
+
+<nav class="nav">
+  <strong>🔍 Android Security Auditor</strong>
+  <span id="navDev"></span>
+  <span id="navThreat" class="threat" style="display:none"></span>
+  <div class="nav-actions" style="display:flex;gap:5px">
+    <button id="aiReviewBtn" onclick="loadAiReview()">AI Review</button>
+    <button onclick="window.print()">Print</button>
+    <button onclick="exportJSON()">Export</button>
+    <a href="/">New Scan</a>
+  </div>
+</nav>
+
+<div id="main-content">
+<div id="main-content-inner" style="max-width:1100px;margin:0 auto;padding:14px">
+
+  <div class="ai-card" id="aiReviewCard">
+    <div class="ai-head">AI Analyst Review</div>
+    <div class="ai-meta" id="aiMeta"></div>
+    <div class="ai-sum" id="aiSummary"></div>
+    <div id="aiFalsePositive" style="font-size:11px;color:#888;margin-bottom:8px"></div>
+    <div id="aiFindings"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">Device Information</div>
+    <div class="sec-body">
+      <div style="font-size:16px;font-weight:700" id="devModel">—</div>
+      <div style="color:#666;font-size:12px;margin-top:2px;margin-bottom:10px" id="devSub">—</div>
+      <div class="dev-grid" id="deviceProps"></div>
+      <div class="flags" id="securityFlags"></div>
+    </div>
+  </div>
+
+  <div class="sev-row">
+    <div class="sev-card cr"><div class="n" id="cnt-critical">0</div><div class="l">Critical</div></div>
+    <div class="sev-card hi"><div class="n" id="cnt-high">0</div><div class="l">High</div></div>
+    <div class="sev-card me"><div class="n" id="cnt-medium">0</div><div class="l">Medium</div></div>
+    <div class="sev-card lo"><div class="n" id="cnt-low">0</div><div class="l">Low</div></div>
+    <div class="sev-card inf"><div class="n" id="cnt-info">0</div><div class="l">Info</div></div>
+  </div>
+
+  <div class="sec" id="vulnSec" style="display:none"><div class="sec-head">CVE Vulnerabilities <span class="badge" id="vulnBadge">0</span></div><div class="sec-body" id="vulnList"></div></div>
+  <div class="sec" id="settingsSec" style="display:none"><div class="sec-head">Security Settings Risks <span class="badge" id="settingsBadge">0</span></div><div class="sec-body" id="settingsList"></div></div>
+  <div class="sec" id="exposureSec" style="display:none"><div class="sec-head">Data Exposure <span class="badge" id="exposureBadge">0</span></div><div class="sec-body" id="exposureList"></div></div>
+  <div class="sec" id="connSec" style="display:none"><div class="sec-head">External Connections <span class="badge" id="connBadge">0</span></div><div class="sec-body"><div style="overflow-x:auto"><table><thead><tr><th>App</th><th>Remote</th><th>Port</th><th>State</th></tr></thead><tbody id="connBody"></tbody></table></div></div></div>
+
+  <div class="info-row">
+    <div class="info-card"><h4>Network</h4><div id="networkInfo"></div></div>
+    <div class="info-card"><h4>Battery</h4><div id="batteryInfo"></div></div>
+    <div class="info-card"><h4>Storage</h4><div id="storageInfo"></div></div>
+  </div>
+
+  <div class="sec" id="callSec" style="display:none"><div class="sec-head">Call History <span class="badge" id="callBadge">0</span></div><div class="sec-body"><div id="callFlags"></div><div class="stats" id="callStats"></div><div style="overflow-x:auto"><table><thead><tr><th>Type</th><th>Number</th><th>Name</th><th>Duration</th><th>Date & Time</th></tr></thead><tbody id="callBody"></tbody></table></div><div style="margin-top:8px"><button class="xbtn" id="callMoreBtn" onclick="callShowAll()" style="display:none">Show all calls</button></div></div></div>
+  <div class="sec" id="smsSec" style="display:none"><div class="sec-head">SMS Metadata <span class="badge" id="smsBadge">0</span></div><div class="sec-body"><div id="smsFlags"></div><div class="stats" id="smsStats"></div><div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase">Top Senders</div><div id="smsSenders"></div></div></div>
+  <div class="sec" id="contactsSec" style="display:none"><div class="sec-head">Contacts <span class="badge" id="contactsBadge">0</span></div><div class="sec-body"><div class="acc-grid" id="contactsGrid"></div></div></div>
+  <div class="sec"><div class="sec-head">Accounts <span class="badge" id="acc-count">0</span></div><div class="sec-body"><div class="acc-grid" id="accountsGrid"></div></div></div>
+
+  <div class="sec">
+    <div class="sec-head">Applications <span class="badge" id="app-count">0</span></div>
+    <div class="frow">
+      <button class="fbtn act" onclick="setFilter('all',this)">All</button>
+      <button class="fbtn frc" onclick="setFilter('critical',this)">Critical</button>
+      <button class="fbtn frh" onclick="setFilter('high',this)">High</button>
+      <button class="fbtn frm" onclick="setFilter('medium',this)">Medium</button>
+      <button class="fbtn" onclick="setFilter('low',this)">Low</button>
+      <button class="fbtn" onclick="setFilter('third',this)">3rd Party</button>
+      <button class="fbtn" onclick="setFilter('system',this)">System</button>
+      <input class="sbox" id="searchBox" placeholder="Search..." oninput="filterSearch(this.value)"/>
+    </div>
+    <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Package</th><th>Version</th><th>Severity</th><th>Dangerous Permissions</th><th>Type</th><th></th></tr></thead><tbody id="appTbody"></tbody></table></div>
+  </div>
+
+  <div class="sec"><div class="sec-head">Running Services</div><div class="sec-body"><div class="svc-wrap" id="servicesWrap"></div></div></div>
+
+  <div class="footer" id="scanTime"></div>
+</div>
+</div>
+
+<script>
+let reportData=null,allApps=[],curFilter='all',curSearch='',_allCalls=[];
+const SO={critical:0,high:1,medium:2,low:3,info:4};
+const SC={critical:'sc',high:'sh',medium:'sm',low:'sl',info:'si'};
+const CICO={INCOMING:'↙ IN',OUTGOING:'↗ OUT',MISSED:'↘ MISSED',REJECTED:'✕ REJ',BLOCKED:'⊘ BLK'};
+const CCLS={INCOMING:'ct-in',OUTGOING:'ct-out',MISSED:'ct-miss',REJECTED:'ct-rej'};
+const FC={critical:'fc',high:'fh',medium:'fm',low:'fl',info:'fi'};
+
+function kv(k,v){return`<div class="nkv"><span class="k">${k}</span><span class="v">${v||'—'}</span></div>`}
+
+function renderDevice(d){
+  document.getElementById('devModel').textContent=`${d.brand} ${d.model}`;
+  document.getElementById('devSub').textContent=`Android ${d.android_version} | SDK ${d.sdk_version} | ${d.manufacturer} | Patch: ${d.security_patch||'Unknown'}`;
+  document.getElementById('navDev').textContent=`${d.brand} ${d.model}`;
+  document.getElementById('deviceProps').innerHTML=[['Security Patch',d.security_patch],['Build',d.build_number],['CPU',d.cpu_abi],['Kernel',d.kernel],['Serial',d.serial],['Screen',d.screen_size],['Encryption',d.encryption],['Timezone',d.timezone]].map(([k,v])=>`<div class="dkv"><div class="k">${k}</div><div class="v">${v||'—'}</div></div>`).join('');
+  const f=[];
+  f.push(d.is_rooted?`<span class="flag danger">⚠ Rooted</span>`:`<span class="flag ok">✓ Not Rooted</span>`);
+  f.push(d.unknown_sources?`<span class="flag warn">⚠ Unknown Sources ON</span>`:`<span class="flag ok">✓ Unknown Sources OFF</span>`);
+  f.push(d.usb_debug?`<span class="flag info">ℹ USB Debug ON</span>`:`<span class="flag ok">✓ USB Debug OFF</span>`);
+  f.push(d.encryption==='encrypted'?`<span class="flag ok">✓ Encrypted</span>`:`<span class="flag warn">⚠ Not Encrypted</span>`);
+  document.getElementById('securityFlags').innerHTML=f.join('');
+}
+
+function renderSeverity(s,apps){
+  const sum=s&&Object.values(s).some(v=>v>0)?s:{};
+  if(!Object.keys(sum).length)['critical','high','medium','low','info'].forEach(k=>{sum[k]=(apps||[]).filter(a=>a.severity===k).length;});
+  ['critical','high','medium','low','info'].forEach(k=>document.getElementById(`cnt-${k}`).textContent=sum[k]||0);
+  const tl=sum.critical>0?{cls:'tc',l:'CRITICAL'}:sum.high>0?{cls:'th',l:'HIGH RISK'}:sum.medium>2?{cls:'tm',l:'MEDIUM'}:{cls:'tk',l:'CLEAN'};
+  const n=document.getElementById('navThreat');n.className=`threat ${tl.cls}`;n.textContent=tl.l;n.style.display='inline-block';
+}
+
+function finding(f){
+  const cls=FC[f.severity]||'fi';
+  return`<div class="finding ${cls}"><strong>${f.title||f.setting||f.cve} <span class="stag s${(f.severity||'i')[0]}">${(f.severity||'info').toUpperCase()}</span></strong><div class="fd">${f.detail||f.desc||f.description||''}</div>${f.files?.length?`<div class="ff">${f.files.slice(0,5).map(x=>`<span>↳ ${x}</span>`).join('')}</div>`:''}</div>`;
+}
+
+function renderVulns(v){
+  if(!v?.vuln_count)return;
+  document.getElementById('vulnSec').style.display='';
+  document.getElementById('vulnBadge').textContent=v.vuln_count;
+  document.getElementById('vulnList').innerHTML=(v.vulnerabilities||[]).map(x=>finding({...x,title:`${x.cve} — ${x.name}`,detail:`${x.desc} | Fixed: ${x.patch_fixed}`})).join('');
+}
+
+function renderSettingsRisks(s){
+  const r=(s||{})._risks||[];if(!r.length)return;
+  document.getElementById('settingsSec').style.display='';
+  document.getElementById('settingsBadge').textContent=r.length;
+  document.getElementById('settingsList').innerHTML=r.map(f=>finding(f)).join('');
+}
+
+function renderExposure(e){
+  if(!e?.total_issues)return;
+  document.getElementById('exposureSec').style.display='';
+  document.getElementById('exposureBadge').textContent=e.total_issues;
+  document.getElementById('exposureList').innerHTML=(e.findings||[]).map(f=>finding(f)).join('');
+}
+
+function renderLiveConns(lc){
+  const ext=(lc||{}).external||[];if(!ext.length)return;
+  document.getElementById('connSec').style.display='';
+  document.getElementById('connBadge').textContent=ext.length;
+  document.getElementById('connBody').innerHTML=ext.map(c=>`<tr><td>${c.app.split('.').slice(-2).join('.')}</td><td>${c.remote}</td><td>${c.local.split(':')[1]||'—'}</td><td><span class="conn-state">${c.state}</span></td></tr>`).join('');
+}
+
+function renderInfoCards(net,bat,st){
+  document.getElementById('networkInfo').innerHTML=kv('IP',net.ip_address)+kv('SSID',net.current_wifi_ssid)+kv('Signal',net.current_wifi_rssi)+kv('Security',net.current_wifi_security)+kv('DNS',net.dns1)+kv('Saved Nets',net.saved_networks_total);
+  document.getElementById('batteryInfo').innerHTML=kv('Level',bat.level?bat.level+'%':'—')+kv('Status',bat.status)+kv('Health',bat.health)+kv('Temp',bat.temperature?(parseInt(bat.temperature)/10).toFixed(1)+'°C':'—');
+  document.getElementById('storageInfo').innerHTML=`<pre style="font-size:11px;color:#666;white-space:pre-wrap">${(st||{}).raw||'N/A'}</pre>`;
+}
+
+function renderCallHistory(data){
+  if(!data?.total)return;
+  document.getElementById('callSec').style.display='';
+  document.getElementById('callBadge').textContent=data.total;
+  _allCalls=data.calls||[];
+  document.getElementById('callFlags').innerHTML=(data.security_flags||[]).map(f=>finding(f)).join('');
+  const tc=data.type_counts||{};
+  document.getElementById('callStats').innerHTML=[['Total',data.total],['In',tc.INCOMING||0],['Out',tc.OUTGOING||0],['Missed',tc.MISSED||0]].map(([l,n])=>`<div class="sbox2"><div class="sn">${n}</div><div class="sl">${l}</div></div>`).join('');
+  renderCallPage(50);
+}
+
+function renderCallPage(limit){
+  document.getElementById('callBody').innerHTML=_allCalls.slice(0,limit).map(c=>`<tr><td><span class="${CCLS[c.type]||''}">${CICO[c.type]||c.type}</span></td><td>${c.number}</td><td style="color:#666">${c.name&&c.name!==c.number?c.name:'—'}</td><td style="color:#666">${c.duration||'—'}</td><td style="color:#666">${c.datetime}</td></tr>`).join('');
+  if(_allCalls.length>limit)document.getElementById('callMoreBtn').style.display='inline-block';
+}
+function callShowAll(){renderCallPage(_allCalls.length);document.getElementById('callMoreBtn').style.display='none';}
+
+function renderSMS(data){
+  if(!data?.total)return;
+  document.getElementById('smsSec').style.display='';
+  document.getElementById('smsBadge').textContent=data.total;
+  document.getElementById('smsFlags').innerHTML=(data.security_flags||[]).map(f=>finding(f)).join('');
+  const cnt=data.counts||{};
+  document.getElementById('smsStats').innerHTML=[['Total',data.total],['Inbox',cnt.INBOX||0],['Sent',cnt.SENT||0],['Senders',data.unique_senders||0]].map(([l,n])=>`<div class="sbox2"><div class="sn">${n}</div><div class="sl">${l}</div></div>`).join('');
+  const max=(data.top_senders||[])[0]?.count||1;
+  document.getElementById('smsSenders').innerHTML=(data.top_senders||[]).map(s=>`<div class="sbar-row"><div class="sbar-addr">${s.address}</div><div class="sbar-wrap"><div class="sbar-fill" style="width:${(s.count/max*100).toFixed(0)}%"></div></div><div class="sbar-cnt">${s.count}</div></div>`).join('');
+}
+
+function renderContacts(data){
+  if(!data?.count)return;
+  document.getElementById('contactsSec').style.display='';
+  document.getElementById('contactsBadge').textContent=data.count;
+  document.getElementById('contactsGrid').innerHTML=(data.contacts||[]).map(c=>`<div class="acc-card"><div class="acc-email">${c.number}</div><div class="acc-type">${c.name&&c.name!=='—'?c.name:'Unknown'}</div></div>`).join('');
+}
+
+function renderAccounts(a){
+  document.getElementById('acc-count').textContent=a.length;
+  document.getElementById('accountsGrid').innerHTML=a.length?a.map(x=>`<div class="acc-card"><div class="acc-email">${x.name}</div><div class="acc-type">${x.type}</div></div>`).join(''):`<span style="color:#888">No accounts found</span>`;
+}
+
+function renderApps(apps){
+  allApps=[...apps].sort((a,b)=>SO[a.severity]-SO[b.severity]);
+  document.getElementById('app-count').textContent=`${apps.length} total`;
+  applyFilter();
+}
+
+function applyFilter(){
+  const q=curSearch.toLowerCase();
+  const rows=allApps.filter(a=>{
+    const ms=curFilter==='all'||a.severity===curFilter||(curFilter==='third'&&a.app_type==='third_party')||(curFilter==='system'&&a.app_type==='system')||(curFilter==='review'&&a.app_type==='review');
+    return ms&&(!q||a.package.toLowerCase().includes(q));
+  });
+  document.getElementById('appTbody').innerHTML=rows.map((a,i)=>{
+    const dp=(a.permissions?.dangerous||[]).map(p=>`<span class="pchip">${p.replace('android.permission.','')}</span>`).join('');
+    const did=`d${i}`;
+    const allP=(a.permissions?.granted||[]).map(p=>`<span class="pchip" style="${(a.permissions.dangerous||[]).includes(p)?'':'background:#eef;color:#339;border-color:#ccf'}">${p.replace('android.permission.','')}</span>`).join('');
+    const dRows=[['Package',a.package],['Version',`${a.version_name||'?'} (${a.version_code||'?'})`],['UID',a.uid],['Min SDK',a.min_sdk],['Target SDK',a.target_sdk],['Install',a.install_date],['Updated',a.last_updated],['APK',a.apk_path],['Risk Score',a.risk_score],['Reason',a.risk_explanation]].map(([k,v])=>`<div class="det-kv"><div class="k">${k}</div><div class="v">${v||'—'}</div></div>`).join('');
+    const tp={system:'System',third_party:'3rd Party',review:'Review'}[a.app_type]||'?';
+    return`<tr class="app-row" data-sev="${a.severity}"><td style="color:#888">${i+1}</td><td><div style="font-weight:600">${a.package.split('.').slice(-1)[0]}</div><div style="font-size:11px;color:#888">${a.package}</div></td><td style="color:#666;font-size:11px">${a.version_name||'—'}</td><td><span class="stag ${SC[a.severity]}">${a.severity.toUpperCase()}</span></td><td style="max-width:220px">${dp||`<span style="color:#aaa;font-size:11px">None</span>`}</td><td style="color:#888;font-size:11px">${tp}</td><td><button class="xbtn" onclick="toggleDetail('${did}',this)">▼</button></td></tr><tr class="det-row" id="${did}"><td colspan="7" class="det-cell"><div class="det-grid">${dRows}</div><div style="font-size:10px;color:#888;text-transform:uppercase;margin-bottom:5px">All Permissions</div><div>${allP||'None'}</div></td></tr>`;
+  }).join('');
+}
+
+function toggleDetail(id,btn){const r=document.getElementById(id);r.classList.toggle('open');btn.textContent=r.classList.contains('open')?'▲':'▼';}
+function setFilter(f,btn){curFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('act'));btn.classList.add('act');applyFilter();}
+function filterSearch(q){curSearch=q;applyFilter();}
+function renderServices(s){document.getElementById('servicesWrap').innerHTML=s.length?s.map(x=>`<div class="svc">${x}</div>`).join(''):`<span style="color:#aaa">No services</span>`;}
+function exportJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(reportData,null,2)],{type:'application/json'}));a.download=`asa-${Date.now()}.json`;a.click();}
+
+async function loadAiReview(){
+  const btn=document.getElementById('aiReviewBtn');
+  const card=document.getElementById('aiReviewCard');
+  btn.disabled=true;btn.textContent='Generating...';card.classList.add('on');
+  document.getElementById('aiMeta').textContent='Sending to AI...';
+  try{
+    const d=await(await fetch('/api/ai-review')).json();
+    if(d.status!=='ready'||!d.data){document.getElementById('aiMeta').textContent=d.error||'Not ready';return;}
+    const ai=d.data;if(ai.error){document.getElementById('aiMeta').textContent=ai.error;return;}
+    document.getElementById('aiMeta').textContent=`Model: ${ai.model||'—'} | ${ai.overall_assessment||'—'} | Confidence: ${ai.confidence||'—'}`;
+    document.getElementById('aiSummary').textContent=ai.summary||'';
+    document.getElementById('aiFalsePositive').textContent=ai.false_positive_notes||'';
+    document.getElementById('aiFindings').innerHTML=(ai.findings||[]).map(f=>`<div class="finding f${(f.severity||'i')[0]}"><strong>${f.title} <span class="stag s${(f.severity||'i')[0]}">${(f.severity||'info').toUpperCase()}</span></strong><div class="fd">${f.package} — ${f.rationale}</div><div class="fd">→ ${f.recommended_action}</div></div>`).join('');
+  }catch(e){document.getElementById('aiMeta').textContent='Failed: '+e.message;}
+  finally{btn.disabled=false;btn.textContent='AI Review';}
+}
+
+async function loadReport(){
+  try{
+    const d=await(await fetch('/api/result')).json();
+    if(d.status!=='ready'){setTimeout(loadReport,1000);return;}
+    reportData=d.data;
+    if(reportData.error){document.getElementById('loading').innerHTML=`<p style="color:red">Error: ${reportData.error}</p><a href="/">← Go Back</a>`;return;}
+    document.getElementById('scanTime').textContent='Scanned: '+new Date(reportData.scan_time).toLocaleString();
+    renderDevice(reportData.device);
+    renderSeverity(reportData.severity_summary,reportData.apps||[]);
+    renderVulns(reportData.vulnerabilities);
+    renderSettingsRisks(reportData.security_settings);
+    renderExposure(reportData.data_exposure);
+    renderLiveConns(reportData.live_connections);
+    renderInfoCards(reportData.network,reportData.battery,reportData.storage);
+    renderCallHistory(reportData.call_history);
+    renderSMS(reportData.sms);
+    renderContacts(reportData.contacts);
+    renderAccounts(reportData.accounts||[]);
+    renderApps(reportData.apps||[]);
+    renderServices(reportData.running_services||[]);
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-content').style.display='block';
+  }catch(e){setTimeout(loadReport,1500);}
+}
+loadReport();
+</script>
+</body>
+</html>

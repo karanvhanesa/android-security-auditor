@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basics of Cyber Security & Linux</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Arial", "Helvetica Neue", sans-serif;
+      color: #1e1e1e;
+      background: #ececec;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .cover {
+      padding: 16mm 20mm 0;
+      background:
+        radial-gradient(circle at 92% 34%, rgba(0,0,0,0.055) 0, rgba(0,0,0,0.055) 1px, transparent 1px) 0 0/7px 7px,
+        linear-gradient(#fff, #fff);
+    }
+    .logos {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .logos img.demmisto { width: 86mm; }
+    .logos img.ose { width: 72mm; margin-top: 1mm; }
+    .cover-title {
+      margin-top: 36mm;
+      margin-left: 3mm;
+      font-size: 31px;
+      line-height: 1.18;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #34306d;
+      text-transform: uppercase;
+      width: 125mm;
+    }
+    .cover-subtitle {
+      margin-top: 18mm;
+      margin-left: 3mm;
+      font-size: 18px;
+      color: #103f9e;
+      letter-spacing: 0.4px;
+    }
+    .website-bar {
+      position: absolute;
+      left: 26mm;
+      right: 26mm;
+      bottom: 112mm;
+      height: 29mm;
+      background: #27a38c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      z-index: 2;
+    }
+    .cover-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 131mm;
+      width: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .page-no {
+      position: absolute;
+      right: 17mm;
+      bottom: 12mm;
+      font-size: 18px;
+      color: #000;
+      z-index: 3;
+    }
+    .toc { background: #fff; }
+    .toc-left-top,
+    .toc-left-bottom {
+      position: absolute;
+      left: 0;
+      width: 55mm;
+      object-fit: cover;
+    }
+    .toc-left-top { top: 0; height: 108mm; }
+    .toc-left-bottom { bottom: 0; height: 108mm; }
+    .toc-vertical {
+      position: absolute;
+      left: 6mm;
+      top: 155mm;
+      color: #27a38c;
+      font-weight: 700;
+      font-size: 29px;
+      transform: rotate(-90deg);
+      transform-origin: left top;
+      letter-spacing: 0.4px;
+    }
+    .toc-items {
+      position: absolute;
+      left: 78mm;
+      top: 70mm;
+      right: 18mm;
+    }
+    .toc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 30mm;
+    }
+    .toc-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #27a38c;
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+    .toc-text {
+      font-size: 25px;
+      line-height: 1.33;
+      font-weight: 600;
+      color: #20222a;
+    }
+    .toc-text.small-list {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 15mm 13mm 17mm;
+      background: #fff;
+    }
+    .content h1 {
+      margin: 0 0 10px;
+      color: #34306d;
+      font-size: 31px;
+      line-height: 1.1;
+      font-weight: 700;
+    }
+    .content h2 {
+      margin: 8px 0 14px;
+      font-size: 23px;
+      line-height: 1.1;
+      color: #000;
+      font-weight: 700;
+    }
+    .content p,
+    .content li {
+      font-size: 14px;
+      line-height: 1.42;
+      text-align: justify;
+      letter-spacing: 0.1px;
+    }
+    .content p { margin: 0 0 11px; }
+    .content ul, .content ol {
+      margin: 0 0 11px 18px;
+      padding: 0;
+    }
+    .content li { margin-bottom: 5px; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .box {
+      border: 1px solid #d8d8d8;
+      padding: 10px 12px;
+      background: #fafafa;
+    }
+    .box h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      color: #34306d;
+    }
+    .note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 4px solid #27a38c;
+      background: #f3fbf8;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="logos">
+      <img class="demmisto" src="sample_p1_img_2.png" alt="Demmisto Technologies logo" />
+      <img class="ose" src="sample_p1_img_3.png" alt="CIOSE logo" />
+    </div>
+    <div class="cover-title">
+      BASICS OF CYBER<br />
+      SECURITY &amp; LINUX
+    </div>
+    <div class="cover-subtitle">Module 1 E-book</div>
+    <div class="website-bar">www.demmistotechnologies.com</div>
+    <img class="cover-bottom" src="sample_p1_img_1.jpg" alt="Network style cover graphic" />
+    <div class="page-no">1</div>
+  </section>
+
+  <section class="page toc">
+    <img class="toc-left-top" src="sample_p2_img_1.jpg" alt="Password keyboard" />
+    <img class="toc-left-bottom" src="sample_p2_img_2.jpg" alt="Password matrix" />
+    <div class="toc-vertical">Table of Contents</div>
+    <div class="toc-items">
+      <div class="toc-item">
+        <div class="toc-num">1</div>
+        <div class="toc-text">What is Cyber Security?</div>
+      </div>
+      <div class="toc-item">
+        <div class="toc-num">2</div>
+        <div class="toc-text">What is a Hacker?</div>
+      </div>
+      <div class="toc-item">
+        <div class="toc-num">3</div>
+        <div class="toc-text small-list">
+          Types of Hackers<br />
+          Operating System Basics<br />
+          What is Linux?<br />
+          Why Linux is Used in Hacking
+        </div>
+      </div>
+      <div class="toc-item" style="margin-bottom:16mm;">
+        <div class="toc-num">4</div>
+        <div class="toc-text small-list">
+          Linux Distributions<br />
+          Kali Linux<br />
+          Lab Setup<br />
+          Types of Kali Installation<br />
+          Ethical Hacking Learning Path
+        </div>
+      </div>
+    </div>
+    <div class="page-no">2</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>What is Cyber Security</h2>
+    <p>Cyber Security is the practice of protecting computers, networks, systems, and data from digital attacks, unauthorized access, or damage. These attacks are usually aimed at accessing, changing, or destroying sensitive information, extorting money, or interrupting normal business processes.</p>
+    <p>In today’s digital world, almost everything depends on the internet such as banking, communication, social media, and business operations. Because of this, cyber threats are increasing every day. Cyber Security helps individuals and organizations protect their digital assets from hackers and malicious activities.</p>
+    <p>Cyber security includes multiple domains such as network security, application security, information security, cloud security, mobile security, and ethical hacking. The main goal is to maintain the CIA triad:</p>
+    <ul>
+      <li><strong>Confidentiality:</strong> Protecting sensitive information from unauthorized access.</li>
+      <li><strong>Integrity:</strong> Ensuring data is not modified or tampered with.</li>
+      <li><strong>Availability:</strong> Ensuring systems and data are accessible when needed.</li>
+    </ul>
+    <p>Cyber security is important because it supports trust in digital systems and reduces the risk of theft, disruption, and privacy loss.</p>
+    <div class="page-no">3</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>What is a Hacker</h2>
+    <p>A hacker is a person who uses technical skills to understand computer systems, networks, and applications. Hackers often try to find vulnerabilities or weaknesses in systems. The term hacker does not always mean a criminal. Some hackers use their skills to improve security and protect systems.</p>
+    <p>Hackers may work for cyber security companies, government agencies, bug bounty programs, ethical hacking firms, and security research teams. They usually have strong knowledge of operating systems, networking, programming, security vulnerabilities, and web technologies.</p>
+    <h2>Types of Hackers</h2>
+    <p><strong>White Hat Hacker:</strong> White hat hackers are ethical security professionals who use hacking techniques legally to identify vulnerabilities in systems. Their goal is to improve security and protect organizations from cyber attacks.</p>
+    <p><strong>Black Hat Hacker:</strong> Black hat hackers perform illegal hacking activities. Their goal is usually to steal data, gain unauthorized access, or cause damage through activities such as ransomware, fraud, and website defacement.</p>
+    <p><strong>Grey Hat Hacker:</strong> Grey hat hackers fall between white hat and black hat hackers. They may access systems without permission but usually do not have malicious intentions and may later report vulnerabilities.</p>
+    <div class="page-no">4</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>What is an Operating System (OS)</h2>
+    <p>An Operating System is system software that manages computer hardware and software resources. It acts as an interface between the user and the computer hardware. Without an operating system, a computer cannot function properly for regular use.</p>
+    <p>The operating system performs several tasks such as managing hardware resources, running applications, managing files and storage, handling input and output devices, and managing memory and processes.</p>
+    <p>Examples of operating systems include Windows, Linux, macOS, Android, and iOS. Operating systems can be categorized based on their usage:</p>
+    <ul>
+      <li><strong>Desktop Operating System:</strong> Used for personal computers and laptops.</li>
+      <li><strong>Mobile Operating System:</strong> Designed for smartphones and tablets.</li>
+      <li><strong>Server Operating System:</strong> Used to manage servers and network resources.</li>
+      <li><strong>Embedded Operating System:</strong> Used in routers, smart TVs, and IoT devices.</li>
+    </ul>
+    <div class="page-no">5</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>What is Linux</h2>
+    <p>Linux is an open-source operating system based on Unix architecture. It is widely used by developers, system administrators, and cyber security professionals. Linux is free, customizable, and highly secure. Because of these features, it is widely used in cyber security and penetration testing.</p>
+    <p>Linux allows users to modify the source code and customize the system according to their needs. Its flexibility and command-line power make it suitable for both general computing and advanced technical work.</p>
+    <h2>Why Linux is Used in Hacking</h2>
+    <ul>
+      <li><strong>Open Source:</strong> The source code is publicly available and can be modified.</li>
+      <li><strong>Powerful Command Line:</strong> Linux provides an efficient terminal for complex tasks.</li>
+      <li><strong>Security and Stability:</strong> Linux systems are generally secure and reliable.</li>
+      <li><strong>Tool Availability:</strong> Many cyber security tools are built for Linux environments.</li>
+      <li><strong>Customization:</strong> Linux allows complete control over system configuration.</li>
+    </ul>
+    <div class="page-no">6</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>Linux Distributions (Distros)</h2>
+    <p>A Linux distribution is a version of Linux that includes the Linux kernel along with additional software and tools. Different distributions are designed for different purposes such as development, penetration testing, or general use.</p>
+    <p>Examples of Linux distributions include Kali Linux, Ubuntu, Parrot OS, Debian, Fedora, and Arch Linux. Each distribution serves a specific purpose and gives users a different balance of simplicity, customization, and tools.</p>
+    <h2>Kali Linux</h2>
+    <p>Kali Linux is one of the most popular Linux distributions used for cyber security and penetration testing. It is developed and maintained by Offensive Security. Kali Linux contains hundreds of pre-installed security tools used for penetration testing, digital forensics, vulnerability assessment, wireless attacks, and security research.</p>
+    <p>Popular tools in Kali Linux include Nmap, Burp Suite, Metasploit, Wireshark, John the Ripper, and Aircrack-ng.</p>
+    <div class="page-no">7</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>Lab Setup for Kali Linux</h2>
+    <p>Before practicing hacking techniques, it is important to create a safe and controlled lab environment. A cyber security lab allows students to practice attacks and defenses without harming real systems. Common lab components include Kali Linux as the attacker machine, a vulnerable machine as the target, and virtualization software such as VirtualBox or VMware.</p>
+    <p>Virtual lab environments allow safe experimentation and easy recovery through snapshots. A beginner should always work inside a controlled environment and never test against real systems without permission.</p>
+    <div class="note">Safe practice matters. Students should test only in their own labs or with explicit written authorization, keep systems isolated from production networks, and document their setup carefully.</div>
+    <h2>Types of Kali Linux Installation</h2>
+    <div class="two-col">
+      <div class="box">
+        <h3>Virtual Machine Installation</h3>
+        <p>Safe testing environment, easy to install, and no need to modify the main operating system.</p>
+      </div>
+      <div class="box">
+        <h3>Dual Boot Installation</h3>
+        <p>Lets users install Kali Linux alongside another operating system and choose one during boot.</p>
+      </div>
+      <div class="box">
+        <h3>Live Boot (USB)</h3>
+        <p>Portable and does not permanently change the host system.</p>
+      </div>
+      <div class="box">
+        <h3>Bare Metal Installation</h3>
+        <p>Direct installation on the machine for full hardware access and maximum performance.</p>
+      </div>
+    </div>
+    <div class="page-no">8</div>
+  </section>
+
+  <section class="page content">
+    <h1>Basics of Cyber Security &amp; Linux</h1>
+    <h2>Ethical Hacking and Learning Path</h2>
+    <p>To become a cyber security professional, students should focus on learning networking fundamentals, the Linux operating system, web technologies such as HTTP, HTML, and JavaScript, vulnerability assessment, penetration testing, and security tools. Practical learning through labs, Capture the Flag challenges, and responsible real-world testing is essential.</p>
+    <p>A strong learning path begins with understanding how systems and networks work, then moves into Linux administration, web basics, reconnaissance, vulnerability discovery, and controlled exploitation. Ethical conduct is a core requirement at every step.</p>
+    <h2>Summary</h2>
+    <p>This module introduces the basic ideas that support later cyber security study. Students who understand cyber security principles, hacker types, operating systems, Linux fundamentals, Kali Linux, and safe lab setup will have a better foundation for hands-on learning.</p>
+    <ul>
+      <li>Cyber security protects systems, networks, and data from attack.</li>
+      <li>Hackers differ by intent and authorization.</li>
+      <li>Linux is central to many security workflows.</li>
+      <li>Kali Linux is an important platform for practice.</li>
+      <li>Ethical and safe lab work must come before offensive testing.</li>
+    </ul>
+    <div class="page-no">9</div>
+  </section>
+</body>
+</html>

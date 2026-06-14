@@ -18,7 +18,7 @@ Connect any Android device via USB and get a full security audit — app permiss
 | 📶 **Network Info** | IP, MAC address, interfaces |
 | 🔋 **Battery & Storage** | Live battery stats and storage layout |
 | ⚙️ **Running Services** | Shows currently active background services |
-| 🌐 **Localhost Dashboard** | Beautiful dark UI, filter by severity, search, expand each app |
+| 🌐 **Localhost Dashboard** | UI, filter by severity, search, expand each app |
 | ⬇️ **JSON Export** | Full raw audit data downloadable |
 
 ---

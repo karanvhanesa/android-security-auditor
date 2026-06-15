@@ -43,7 +43,7 @@ Connect any Android device via USB and get a full security audit — app permiss
 ### 3. Install & Run
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/android-security-auditor
+git clone https://github.com/karanvhanesa/android-security-auditor
 cd android-security-auditor
 
 pip install -r requirements.txt
